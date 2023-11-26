@@ -75,13 +75,16 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setLastName(employeeDto.getLastName());
             employee.setEmpSalary(employeeDto.getEmpSalary());
 
-            for(ContactDto c : employeeDto.getContactList()){
-                Contact contact = new Contact();
-                contact.setEmployee(employee);
-                contact.setMobile(c.getMobile());
-                contactRepository.save(contact);
-            }
+            List<Contact> contacts = employeeDto.getContactList().stream()
+                    .map(contactDto -> {
+                        Contact contact = new Contact();
+                        contact.setEmployee(employee);
+                        contact.setMobile(contactDto.getMobile());
+                        return contact;
+                    })
+                    .collect(Collectors.toList());
 
+            contactRepository.saveAll(contacts);
             employeeRepository.save(employee);
             EmployeeDto newEmployee = modelMapper.map(employee, EmployeeDto.class);
 
